@@ -25,40 +25,52 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     var appState = context.watch<AppState>();
     final ThemeData theme = Theme.of(context);
 
-    return Column(
-      children: [
-        // top buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () => {appState.setSreen(Screen.list)},
-              icon: Icon(Icons.close),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () => appState.setSreen(Screen.list),
+                icon: Icon(Icons.close, color: theme.iconTheme.color),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  appState.addNew(textController.text);
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  textController.clear();
+                  appState.setSreen(Screen.list);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Icon(Icons.send),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Task title
+          TextField(
+            controller: textController,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            decoration: InputDecoration(
+              hintText: 'Add title',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: theme.primaryColor),
+              ),
+              contentPadding: const EdgeInsets.all(12),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // save task
-                appState.addNew(textController.text);
-
-                // dismiss keyboard
-                FocusManager.instance.primaryFocus?.unfocus();
-                textController.clear();
-
-                // close screen
-                appState.setSreen(Screen.list);
-              },
-              child: Icon(Icons.send),
-            ),
-          ],
-        ),
-        // task title
-        TextField(
-          controller: textController,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          decoration: InputDecoration.collapsed(hintText: 'Add title'),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
