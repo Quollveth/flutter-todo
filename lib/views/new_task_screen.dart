@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_todo/main.dart';
+import 'package:flutter_todo/state.dart';
 import 'package:provider/provider.dart';
 
 class NewTaskScreen extends StatefulWidget {
