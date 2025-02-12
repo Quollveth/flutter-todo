@@ -40,6 +40,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void finishSubtask(int taskIndex, int subtask) {
+    var temp = tasks[taskIndex].subtasks.removeAt(subtask);
+    tasks[taskIndex].completedSubtasks.add(temp);
+    notifyListeners();
+  }
+
   var currentScreen = Screen.list;
   void setSreen(Screen newScreen) {
     currentScreen = newScreen;

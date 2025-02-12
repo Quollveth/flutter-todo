@@ -32,13 +32,14 @@ class TaskListScreen extends StatelessWidget {
                   itemCount: appState.tasks.length,
                   itemBuilder: (context, index) {
                     if (appState.tasks[index].expanded) {
-                      return GestureDetector(
+                      return TaskItemExpanded(
                         key: Key('$index'),
-                        onTap: () => appState.toggleTaskView(index),
-                        child: TaskItemExpanded(
-                          task: appState.tasks[index],
-                          onDelete: () => print('placeholder'),
-                        ),
+                        task: appState.tasks[index],
+                        onDelete: () => appState.removeTask(index),
+                        onSubtaskCompleted: (subtask) {
+                          appState.finishSubtask(index, subtask);
+                        },
+                        onCollapse: () => appState.toggleTaskView(index),
                       );
                     }
                     return GestureDetector(
@@ -46,7 +47,7 @@ class TaskListScreen extends StatelessWidget {
                       onTap: () => appState.toggleTaskView(index),
                       child: TaskItem(
                         task: appState.tasks[index],
-                        onDelete: () => print('placeholder'),
+                        onDelete: () => appState.removeTask(index),
                       ),
                     );
                   },
@@ -83,12 +84,27 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(task.name),
-        IconButton(onPressed: onDelete, icon: Icon(Icons.delete))
-      ],
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              task.name,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete, color: Colors.redAccent),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -98,38 +114,109 @@ class TaskItemExpanded extends StatelessWidget {
     super.key,
     required this.task,
     required this.onDelete,
+    required this.onSubtaskCompleted,
+    required this.onCollapse,
   });
 
   final Task task;
   final VoidCallback onDelete;
+  final VoidCallback onCollapse;
+  final ValueSetter onSubtaskCompleted;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(task.name),
-            IconButton(onPressed: onDelete, icon: Icon(Icons.delete))
+            // title/buttons
+            GestureDetector(
+              onTap: onCollapse,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    task.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            // description
+            Text(
+              task.description,
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+            // subtasks
+            const SizedBox(height: 10),
+            if (task.subtasks.isNotEmpty || task.completedSubtasks.isNotEmpty)
+              const Text(
+                "Subtasks:",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            const SizedBox(height: 6),
+            if (task.subtasks.isNotEmpty) ...[
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 120),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: task.subtasks.length,
+                  itemBuilder: (context, index) {
+                    return Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => onSubtaskCompleted(index),
+                          icon: Icon(
+                            Icons.radio_button_off,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(task.subtasks[index]),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+            // completed subtasks
+            if (task.completedSubtasks.isNotEmpty) ...[
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 120),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: task.completedSubtasks.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.radio_button_checked,
+                          color: Colors.grey),
+                      title: Text(task.completedSubtasks[index]),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
-        Text(task.description),
-        if (task.subtasks.isNotEmpty)
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 100),
-            child: ListView.builder(
-              itemCount: task.subtasks.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(task.subtasks[index]),
-                  trailing: Icon(Icons.radio_button_off),
-                );
-              },
-            ),
-          ),
-      ],
+      ),
     );
   }
 }
