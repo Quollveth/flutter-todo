@@ -32,16 +32,22 @@ class TaskListScreen extends StatelessWidget {
                   itemCount: appState.tasks.length,
                   itemBuilder: (context, index) {
                     if (appState.tasks[index].expanded) {
-                      return TaskItemExpanded(
+                      return GestureDetector(
                         key: Key('$index'),
-                        task: appState.tasks[index],
-                        onDelete: () => print('placeholder'),
+                        onTap: () => appState.toggleTaskView(index),
+                        child: TaskItemExpanded(
+                          task: appState.tasks[index],
+                          onDelete: () => print('placeholder'),
+                        ),
                       );
                     }
-                    return TaskItem(
+                    return GestureDetector(
                       key: Key('$index'),
-                      task: appState.tasks[index],
-                      onExpand: () => appState.toggleTaskView(index),
+                      onTap: () => appState.toggleTaskView(index),
+                      child: TaskItem(
+                        task: appState.tasks[index],
+                        onDelete: () => print('placeholder'),
+                      ),
                     );
                   },
                 ),
@@ -69,24 +75,20 @@ class TaskItem extends StatelessWidget {
   const TaskItem({
     super.key,
     required this.task,
-    required this.onExpand,
+    required this.onDelete,
   });
 
   final Task task;
-  final VoidCallback onExpand;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      title: Text(
-        task.name,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-      ),
-      trailing: IconButton(
-        onPressed: onExpand,
-        icon: const Icon(Icons.arrow_drop_down),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(task.name),
+        IconButton(onPressed: onDelete, icon: Icon(Icons.delete))
+      ],
     );
   }
 }
@@ -103,19 +105,31 @@ class TaskItemExpanded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      title: Text(
-        task.name,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-      ),
-      trailing: IconButton(
-        onPressed: onDelete,
-        icon: const Icon(
-          Icons.delete_forever,
-          color: Colors.redAccent,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(task.name),
+            IconButton(onPressed: onDelete, icon: Icon(Icons.delete))
+          ],
         ),
-      ),
+        Text(task.description),
+        if (task.subtasks.isNotEmpty)
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: 100),
+            child: ListView.builder(
+              itemCount: task.subtasks.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(task.subtasks[index]),
+                  trailing: Icon(Icons.radio_button_off),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }
