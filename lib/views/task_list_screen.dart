@@ -25,6 +25,7 @@ class TaskListScreen extends StatelessWidget {
                   proxyDecorator: (child, index, animation) {
                     return Material(
                       elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
                       child: child,
                     );
                   },
@@ -64,7 +65,7 @@ class TaskListScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => {appState.setSreen(Screen.create)},
+        onPressed: () => appState.setSreen(Screen.create),
         label: const Text('Add New'),
         icon: const Icon(Icons.add),
       ),
@@ -84,6 +85,7 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
@@ -125,6 +127,7 @@ class TaskItemExpanded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
