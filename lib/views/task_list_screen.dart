@@ -11,6 +11,23 @@ class TaskListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
 
+    removeTask(int index) {
+      appState.removeTask(index);
+      String removed = appState.lastDeleted!.name;
+
+      final undoToast = SnackBar(
+        content: Text('Task $removed removed'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            appState.undoTaskDelete();
+          },
+        ),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(undoToast);
+    }
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,7 +53,7 @@ class TaskListScreen extends StatelessWidget {
                       return TaskItemExpanded(
                         key: Key('$index'),
                         task: appState.tasks[index],
-                        onDelete: () => appState.removeTask(index),
+                        onDelete: () => {removeTask(index)},
                         onSubtaskCompleted: (subtask) {
                           appState.finishSubtask(index, subtask);
                         },
@@ -48,7 +65,7 @@ class TaskListScreen extends StatelessWidget {
                       onTap: () => appState.toggleTaskView(index),
                       child: TaskItem(
                         task: appState.tasks[index],
-                        onDelete: () => appState.removeTask(index),
+                        onDelete: () => {removeTask(index)},
                       ),
                     );
                   },
@@ -57,7 +74,7 @@ class TaskListScreen extends StatelessWidget {
             else
               const Center(
                 child: Text(
-                  'No tasks available',
+                  'You haven\'t created any tasks',
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),

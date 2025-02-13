@@ -17,14 +17,22 @@ class Task {
 class AppState extends ChangeNotifier {
   // Task list
   var tasks = <Task>[];
+  Task? lastDeleted;
+
   void addNewTask(Task task) {
     tasks.add(task);
-    notifyListeners();
+    _save();
   }
 
   void removeTask(int index) {
-    tasks.removeAt(index);
-    notifyListeners();
+    lastDeleted = tasks.removeAt(index);
+    _save();
+  }
+
+  void undoTaskDelete() {
+    if (lastDeleted == null) return;
+    tasks.add(lastDeleted!);
+    _save();
   }
 
   void moveTask(int from, int to) {
@@ -32,7 +40,7 @@ class AppState extends ChangeNotifier {
     tasks.removeAt(from);
     tasks.insert(to, temp);
 
-    notifyListeners();
+    _save();
   }
 
   void toggleTaskView(int index) {
@@ -43,12 +51,19 @@ class AppState extends ChangeNotifier {
   void finishSubtask(int taskIndex, int subtask) {
     var temp = tasks[taskIndex].subtasks.removeAt(subtask);
     tasks[taskIndex].completedSubtasks.add(temp);
-    notifyListeners();
+    _save();
   }
 
+  // views
   var currentScreen = Screen.list;
   void setSreen(Screen newScreen) {
     currentScreen = newScreen;
+    notifyListeners();
+  }
+
+  // global
+  void _save() {
+    //TODO: learn to save lmao
     notifyListeners();
   }
 }
