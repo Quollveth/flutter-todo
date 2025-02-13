@@ -42,6 +42,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            spacing: 16,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top bar with buttons
@@ -63,7 +64,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
               // Task Title
               TextField(
                 controller: taskNameController,
@@ -73,7 +73,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 12),
               // Task Description
               TextField(
                 controller: taskDescController,
@@ -85,58 +84,54 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
               // Subtasks
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Subtasks'),
-                  const SizedBox(height: 8),
-                  if (subtaskControllers.isNotEmpty)
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: 200),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: subtaskControllers.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: subtaskControllers[index],
-                                    decoration: InputDecoration(
-                                      hintText: 'Subtask',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () => removeSubtask(index),
-                                  icon: Icon(Icons.delete,
-                                      color: Colors.redAccent),
-                                ),
-                              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Subtasks'),
+                        if (subtaskControllers.length < 10)
+                          ElevatedButton(
+                            onPressed: addSubtask,
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size(20, 30),
                             ),
-                          );
-                        },
-                      ),
+                            child: Icon(Icons.add),
+                          ),
+                        //endif
+                      ],
                     ),
-                  if (subtaskControllers.length < 3)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: ElevatedButton.icon(
-                        onPressed: addSubtask,
-                        icon: Icon(Icons.add),
-                        label: Text('Add subtask'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: Colors.white,
+                    const SizedBox(height: 8),
+                    if (subtaskControllers.isNotEmpty)
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: subtaskControllers.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: subtaskInputs[index],
+                                  ),
+                                  IconButton(
+                                    onPressed: () => removeSubtask(index),
+                                    icon: Icon(Icons.delete,
+                                        color: Colors.redAccent),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               )
             ],
           ),
@@ -148,6 +143,15 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   void addSubtask() {
     setState(() {
       var tempController = TextEditingController();
+      var tempInput = TextField(
+        controller: tempController,
+        decoration: InputDecoration(
+          hintText: 'Subtask',
+          border: OutlineInputBorder(),
+        ),
+      );
+
+      subtaskInputs.add(tempInput);
       subtaskControllers.add(tempController);
     });
   }

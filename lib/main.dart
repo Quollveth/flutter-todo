@@ -48,7 +48,9 @@ class MyHomePage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Scaffold(
-          body: SafeArea(child: page),
+          body: SafeArea(
+            child: page,
+          ),
         );
       },
     );
