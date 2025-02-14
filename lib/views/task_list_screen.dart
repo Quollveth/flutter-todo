@@ -63,7 +63,7 @@ class TaskListScreen extends StatelessWidget {
                     return GestureDetector(
                       key: Key('$index'),
                       onTap: () => appState.toggleTaskView(index),
-                      child: TaskItem(
+                      child: TaskItemCollapsed(
                         task: appState.tasks[index],
                         onDelete: () => {removeTask(index)},
                       ),
@@ -90,8 +90,8 @@ class TaskListScreen extends StatelessWidget {
   }
 }
 
-class TaskItem extends StatelessWidget {
-  const TaskItem({
+class TaskItemCollapsed extends StatelessWidget {
+  const TaskItemCollapsed({
     super.key,
     required this.task,
     required this.onDelete,
