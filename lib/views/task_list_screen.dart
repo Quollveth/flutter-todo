@@ -10,6 +10,20 @@ class TaskListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
+    appState.load();
+
+    return TaskList();
+  }
+}
+
+class TaskList extends StatelessWidget {
+  const TaskList({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<AppState>();
 
     removeTask(int index) {
       appState.removeTask(index);
