@@ -29,7 +29,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
         builder: (context, snapshot) {
           // already initialized, nothing to be done
           if (appState.initialized) {
-            print("hit done path");
             return TaskList();
           }
 
@@ -39,14 +38,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
           // if it errors or loads nothing we do the empty list either way
           if (snapshot.hasError || !snapshot.hasData) {
-            print("hit error path");
             appState.initialize(null);
             return TaskList();
           }
 
           // if tasks hasn't initialized yet, then do it.
           if (!appState.initialized) {
-            print("hit initialization path");
             WidgetsBinding.instance.addPostFrameCallback((_) {
               appState.initialize(snapshot.data!);
             });

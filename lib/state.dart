@@ -58,9 +58,9 @@ class AppState extends ChangeNotifier {
       final file = await _taskfile;
       taskList = TaskList();
 
-      tasks.forEach((t) {
+      for (var t in tasks) {
         taskList.tasks.add(t.toItem());
-      });
+      }
 
       file.writeAsBytes(taskList.writeToBuffer());
     } catch (e) {
@@ -70,17 +70,13 @@ class AppState extends ChangeNotifier {
   }
 
   Future<List<Task>> load() async {
-    print("loading taskfile");
     try {
       final file = await _taskfile;
       if (!file.existsSync()) {
-        print("taskfile does not exist");
         return [];
       }
 
       TaskList tasklist = TaskList.fromBuffer(file.readAsBytesSync());
-      print("loaded taskfile");
-      print(tasklist.tasks[0].name);
       return tasklist.tasks.map((t) => Task.fromItem(t)).toList();
     } catch (e) {
       //TODO: handle error
@@ -90,7 +86,6 @@ class AppState extends ChangeNotifier {
   }
 
   void initialize(List<Task>? data) {
-    print("initialized");
     if (data == null) {
       initialized = true;
       notifyListeners();
