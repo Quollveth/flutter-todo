@@ -2,17 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_todo/state.dart';
 import 'package:provider/provider.dart';
 
-class TaskListScreen extends StatelessWidget {
+class TaskListScreen extends StatefulWidget {
   const TaskListScreen({
     super.key,
   });
 
   @override
+  State<TaskListScreen> createState() => _TaskListScreenState();
+}
+
+class _TaskListScreenState extends State<TaskListScreen> {
+  late Future<List<Task>> _tasksFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _tasksFuture = context.read<AppState>().load();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var appState = context.watch<AppState>();
-    appState.load();
 
-    return TaskList();
+    return FutureBuilder<List<Task>>(
+        future: _tasksFuture,
+        builder: (context, snapshot) {
+          // already initialized, nothing to be done
+          if (appState.initialized) {
+            print("hit done path");
+            return TaskList();
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Text('Please wait'));
+          }
+
+          // if it errors or loads nothing we do the empty list either way
+          if (snapshot.hasError || !snapshot.hasData) {
+            print("hit error path");
+            appState.initialize(null);
+            return TaskList();
+          }
+
+          // if tasks hasn't initialized yet, then do it.
+          if (!appState.initialized) {
+            print("hit initialization path");
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              appState.initialize(snapshot.data!);
+            });
+          }
+
+          return TaskList();
+        });
   }
 }
 

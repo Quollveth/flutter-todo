@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+message TaskItem {
+  string name = 1;
+  string description = 2;
+  repeated string completed_subtasks = 3;
+  repeated string subtasks = 4;
+}
+
+message TaskList {
+  repeated TaskItem tasks = 1;
+}
